@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .. import mongo
-from ..schemas import user_schema  # only if using Marshmallow
+from ..schemas import auth_schema  # only if using Marshmallow
 
 main = Blueprint("main", __name__)
 

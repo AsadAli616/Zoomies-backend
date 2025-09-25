@@ -4,14 +4,16 @@ from marshmallow import ValidationError
 from datetime import timedelta
 
 from ..services.user_service import UserService
-from ..schemas.user_schema import UserRegisterSchema, UserLoginSchema , VerifySchema ,ResendOTPSchema
+from ..schemas.auth_schema import UserRegisterSchema, UserLoginSchema , VerifySchema ,ResendOTPSchema,ForgotPasswordSchema,ResetPasswordSchema
 
 auth = Blueprint("auth", __name__)
-
+forgot_schema = ForgotPasswordSchema()
+reset_schema = ResetPasswordSchema()
 register_schema = UserRegisterSchema()
 login_schema = UserLoginSchema()
 verify_schema = VerifySchema()
 resend_otp_schema = ResendOTPSchema()
+
 @auth.route("/register/student", methods=["POST"])
 def register():
     try:
@@ -61,7 +63,7 @@ def register_teacher():
     if error:
         return jsonify({"msg": error}), 400
 
-    return jsonify({"msg": "Teacher registered successfully. Please check your email for OTP."}),
+    return jsonify({"msg": "Teacher registered successfully. Please check your email for OTP."}),400  
 
 @auth.route("/login", methods=["POST"])
 def login():
@@ -81,9 +83,7 @@ def login():
             "roles": user.get("roles", []),
             "academic_level": user.get("academic_level"),
             "school_institution": user.get("school_institution"),
-        },
-        expires_delta=timedelta(hours=None),  # token expires in 1h
-    )
+        }    )
 
     return jsonify({"token": token ,"data": user }), 200
 
@@ -105,10 +105,39 @@ def verify_email():
             "roles": user.get("roles", []),
             "academic_level": user.get("academic_level"),
             "school_institution": user.get("school_institution"),
-        },
-        expires_delta=timedelta(hours=None),  # token expires in 1h
+        }
     )
     return jsonify({"msg": "Email verified successfully", "data": user,"token": token}), 200
+
+@auth.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    try:
+        data = forgot_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    res, error = UserService.forgot_password(data["email"])
+    if error:
+        return jsonify({"msg": error}), 400
+
+    return jsonify(res), 200
+
+@auth.route("/reset-password", methods=["POST"])
+def reset_password():
+    try:
+        data = reset_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    res, error = UserService.reset_password(
+        email=data["email"],
+        otp=data["otp"],
+        new_password=data["new_password"]
+    )
+    if error:
+        return jsonify({"msg": error}), 400
+
+    return jsonify(res), 200
 
 @auth.route("/resend-otp", methods=["POST"])
 def resend_otp():

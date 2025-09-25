@@ -1,11 +1,26 @@
-from datetime import datetime
-from .. import mongo
 from datetime import datetime, timezone
+from .. import mongo
 
 class User:
-    def __init__(self, email, password, roles, academic_level=None,
-                 school_institution=None, is_active=True, verified_email=False,
-                 otp=None, otp_created_at=None, created_at=None, updated_at=None):
+    def __init__(
+        self,
+        email,
+        password,
+        roles,
+        academic_level=None,
+        school_institution=None,
+        is_active=True,
+        verified_email=False,
+        otp=None,
+        otp_created_at=None,
+        years_of_experience=None,
+        location=None,
+        phone_number=None,
+        teaching_subjects=None,
+        bio=None,
+        created_at=None,
+        updated_at=None
+    ):
         self.email = email
         self.password = password
         self.roles = roles
@@ -15,8 +30,13 @@ class User:
         self.verified_email = verified_email
         self.otp = otp
         self.otp_created_at = otp_created_at
-        self.created_at = created_at or datetime.utcnow()
-        self.updated_at = updated_at or datetime.utcnow()
+        self.years_of_experience = years_of_experience
+        self.location = location
+        self.phone_number = phone_number
+        self.teaching_subjects = teaching_subjects
+        self.bio = bio
+        self.created_at = created_at or datetime.now(timezone.utc)
+        self.updated_at = updated_at or datetime.now(timezone.utc)
 
     def save(self):
         data = self.__dict__
@@ -26,6 +46,7 @@ class User:
     @staticmethod
     def find_by_email(email):
         return mongo.db.users.find_one({"email": email})
+
     @staticmethod
     def update_user(user_id, updates: dict):
         """
@@ -39,11 +60,9 @@ class User:
         from bson import ObjectId
 
         try:
-            # Ensure valid ObjectId
             if not ObjectId.is_valid(user_id):
                 return None, "Invalid user ID"
 
-            # Always update the 'updated_at' field
             updates["updated_at"] = datetime.now(timezone.utc)
 
             result = mongo.db.users.update_one(
@@ -54,7 +73,6 @@ class User:
             if result.matched_count == 0:
                 return None, "User not found"
 
-            # Return the updated user
             updated_user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
             return updated_user, None
 

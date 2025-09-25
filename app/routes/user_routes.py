@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .. import mongo
-from ..schemas import user_schema  # only if using Marshmallow
+from ..schemas import auth_schema  # only if using Marshmallow
 
 users = Blueprint("users", __name__)
 
@@ -8,7 +8,7 @@ users = Blueprint("users", __name__)
 def create_user():
     data = request.get_json()
 
-    errors = user_schema.validate(data)
+    errors = auth_schema.validate(data)
     if errors:
         return jsonify(errors), 400
 

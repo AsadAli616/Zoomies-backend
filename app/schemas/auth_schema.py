@@ -51,3 +51,10 @@ class VerifySchema(Schema):
 class ResendOTPSchema(Schema):
     email = fields.Email(required=True)
 
+class ForgotPasswordSchema(Schema):
+    email = fields.Email(required=True)
+
+class ResetPasswordSchema(Schema):
+    email = fields.Email(required=True)
+    otp = fields.String(required=True, validate=lambda x: len(x) == 6)
+    new_password = fields.Str(required=True, validate=lambda x: len(x) >= 6)
