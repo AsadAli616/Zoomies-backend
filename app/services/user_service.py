@@ -172,7 +172,7 @@ class UserService:
 
         # Optional: check OTP expiry (e.g., 10 min)
         created_at = user.get("otp_created_at")
-        if created_at and (datetime.now(timezone.utc) - created_at).seconds > 600:
+        if created_at and (datetime.utcnow() - created_at).seconds > 600:
             return None, "OTP expired. Request a new one."
 
         # Hash new password

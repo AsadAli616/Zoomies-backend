@@ -24,11 +24,11 @@ def send_email(subject, recipients, body, sender=("MyApp", "no-reply@myapp.com")
         return False, str(e)
 
 
-def send_otp_email(email, otp):
+def send_otp_email(email, otp , subject= "Verify your email - MyApp"):
     """
     Helper for sending OTP email.
     """
-    subject = "Verify your email - MyApp"
+    subject 
     body = f"""
     Hello,
 
