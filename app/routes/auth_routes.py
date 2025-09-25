@@ -35,6 +35,34 @@ def register():
 
     return jsonify({"msg": "User registered successfully. Please check your email for OTP."}), 201
 
+@auth.route("/register/teacher", methods=["POST"])
+def register_teacher():
+    try:
+        # Validate request body
+        data = register_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    # Pass all validated fields into service layer
+    user, error = UserService.register(
+        email=data["email"],
+        password=data["password"],
+        roles=["teacher"],
+        academic_level=data.get("academic_level"),
+        school_institution=data.get("school_institution"),
+        is_active=data.get("is_active", True),
+        years_of_experience=data.get("years_of_experience"),
+        location=data.get("location"),
+        phone_number=data.get("phone_number"),
+        teaching_subjects=data.get("teaching_subjects"),
+        bio=data.get("bio")
+    )
+
+    if error:
+        return jsonify({"msg": error}), 400
+
+    return jsonify({"msg": "Teacher registered successfully. Please check your email for OTP."}),
+
 @auth.route("/login", methods=["POST"])
 def login():
     try:

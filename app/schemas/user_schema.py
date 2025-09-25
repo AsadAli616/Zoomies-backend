@@ -17,15 +17,23 @@ class UserRegisterSchema(Schema):
     academic_level = fields.Str(
         required=False,
         validate=validate.Length(min=2),
+        allow_none=True,
         error_messages={"invalid": "Academic level must be a string."}
     )
     school_institution = fields.Str(
         required=False,
         validate=validate.Length(min=2),
+        allow_none=True,
         error_messages={"invalid": "School/Institution must be a string."}
     )
     is_active = fields.Bool(required=False, load_default=True)
+    
 
+    years_of_experience = fields.Int(required=False, allow_none=True)
+    location = fields.Str(required=False, allow_none=True)
+    phone_number = fields.Str(required=False, allow_none=True)
+    teaching_subjects = fields.List(fields.Str(), required=False, allow_none=True)
+    bio = fields.Str(required=False, allow_none=True)
 
 class UserLoginSchema(Schema):
     email = fields.Email(required=True)

@@ -1,4 +1,5 @@
-from .. import mongo   # safe because mongo is initialized in create_app()
+from .. import mongo
+from datetime import datetime
 
 def create_collections():
     db = mongo.db
@@ -24,12 +25,12 @@ def create_collections():
                         }
                     },
                     "academic_level": {
-                        "bsonType": "string",
-                        "description": "Academic level (e.g., Undergraduate, Graduate, High School)"
+                        "bsonType": ["string", "null"],
+                        "description": "Academic level (optional, can be null)"
                     },
                     "school_institution": {
-                        "bsonType": "string",
-                        "description": "School or institution name"
+                        "bsonType": ["string", "null"],
+                        "description": "School or institution name (optional, can be null)"
                     },
                     "is_active": {
                         "bsonType": "bool",
@@ -40,18 +41,41 @@ def create_collections():
                         "description": "Has the user verified their email?"
                     },
                     "otp": {
-                        "bsonType": "string",
-                        "description": "Temporary OTP for email verification"
+                        "bsonType": ["string", "null"],
+                        "description": "Temporary OTP for email verification (nullable)"
                     },
                     "otp_created_at": {
-                        "bsonType": "date",
-                        "description": "When the OTP was created (for expiration checks)"
+                        "bsonType": ["date", "null"],
+                        "description": "When the OTP was created (nullable)"
+                    },
+                    "years_of_experience": {
+                        "bsonType": ["int", "null"],
+                        "description": "Years of experience (nullable)"
+                    },
+                    "location": {
+                        "bsonType": ["string", "null"],
+                        "description": "Location (nullable)"
+                    },
+                    "phone_number": {
+                        "bsonType": ["string", "null"],
+                        "description": "Phone number (nullable)"
+                    },
+                    "teaching_subjects": {
+                        "bsonType": ["array", "null"],
+                        "items": {"bsonType": "string"},
+                        "description": "Array of subjects the teacher can teach (nullable)"
+                    },
+                    "bio": {
+                        "bsonType": ["string", "null"],
+                        "description": "Bio (nullable)"
                     },
                     "created_at": {
-                        "bsonType": "date"
+                        "bsonType": "date",
+                        "description": "Creation timestamp"
                     },
                     "updated_at": {
-                        "bsonType": "date"
+                        "bsonType": "date",
+                        "description": "Last update timestamp"
                     }
                 }
             }
