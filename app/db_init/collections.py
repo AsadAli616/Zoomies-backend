@@ -43,6 +43,10 @@ def create_collections():
                         "bsonType": "string",
                         "description": "Temporary OTP for email verification"
                     },
+                    "otp_created_at": {
+                        "bsonType": "date",
+                        "description": "When the OTP was created (for expiration checks)"
+                    },
                     "created_at": {
                         "bsonType": "date"
                     },

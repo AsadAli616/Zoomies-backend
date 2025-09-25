@@ -4,14 +4,14 @@ from marshmallow import ValidationError
 from datetime import timedelta
 
 from ..services.user_service import UserService
-from ..schemas.user_schema import UserRegisterSchema, UserLoginSchema
+from ..schemas.user_schema import UserRegisterSchema, UserLoginSchema , VerifySchema ,ResendOTPSchema
 
 auth = Blueprint("auth", __name__)
 
 register_schema = UserRegisterSchema()
 login_schema = UserLoginSchema()
-
-
+verify_schema = VerifySchema()
+resend_otp_schema = ResendOTPSchema()
 @auth.route("/register/student", methods=["POST"])
 def register():
     try:
@@ -24,7 +24,7 @@ def register():
     user, error = UserService.register(
         email=data["email"],
         password=data["password"],
-        roles="student",
+        roles=["student"],
         academic_level=data.get("academic_level"),
         school_institution=data.get("school_institution"),
         is_active=data.get("is_active", True),
@@ -33,8 +33,7 @@ def register():
     if error:
         return jsonify({"msg": error}), 400
 
-    return jsonify({"msg": "User registered successfully"}), 201
-
+    return jsonify({"msg": "User registered successfully. Please check your email for OTP."}), 201
 
 @auth.route("/login", methods=["POST"])
 def login():
@@ -55,14 +54,44 @@ def login():
             "academic_level": user.get("academic_level"),
             "school_institution": user.get("school_institution"),
         },
-        expires_delta=timedelta(hours=1),  # token expires in 1h
+        expires_delta=timedelta(hours=None),  # token expires in 1h
     )
 
-    return jsonify({"token": token}), 200
+    return jsonify({"token": token ,"data": user }), 200
 
+@auth.route("/verify-email", methods=["POST"])
+def verify_email():
+    try:
+        # Schema ensures `email` and `otp` are provided
+        data = verify_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
 
-@auth.route("/profile", methods=["GET"])
-@jwt_required()
-def profile():
-    current_user = get_jwt_identity()  # email
-    return jsonify({"logged_in_as": current_user}), 200
+    user, error = UserService.verify_email(data["email"], data["otp"])
+    if error:
+        return jsonify({"msg": error}), 400
+
+    token = create_access_token(
+        identity=user["email"],
+        additional_claims={
+            "roles": user.get("roles", []),
+            "academic_level": user.get("academic_level"),
+            "school_institution": user.get("school_institution"),
+        },
+        expires_delta=timedelta(hours=None),  # token expires in 1h
+    )
+    return jsonify({"msg": "Email verified successfully", "data": user,"token": token}), 200
+
+@auth.route("/resend-otp", methods=["POST"])
+def resend_otp():
+    try:
+        # Validate request body (only email needed)
+        data = resend_otp_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    user, error = UserService.resend_otp(data["email"])
+    if error:
+        return jsonify({"msg": error}), 400
+
+    return jsonify({"msg": "OTP resent successfully. Please check your email."}), 200
