@@ -15,6 +15,7 @@ verify_schema = VerifySchema()
 resend_otp_schema = ResendOTPSchema()
 
 @auth.route("/register/student", methods=["POST"])
+
 def register():
     try:
         # Validate request body
@@ -35,12 +36,12 @@ def register():
     if error:
         return jsonify({"msg": error}), 400
 
-    return jsonify({"msg": "User registered successfully. Please check your email for OTP."}), 201
+    return jsonify({"msg": "User registered successfully. Please check your email for OTP.","succes":True}), 201
 
 @auth.route("/register/teacher", methods=["POST"])
 def register_teacher():
     try:
-        # Validate request body
+    
         data = register_schema.load(request.get_json())
     except ValidationError as err:
         return jsonify(err.messages), 400
@@ -63,7 +64,7 @@ def register_teacher():
     if error:
         return jsonify({"msg": error}), 400
 
-    return jsonify({"msg": "Teacher registered successfully. Please check your email for OTP."}),400  
+    return jsonify({"msg": "Teacher registered successfully. Please check your email for OTP."}),200  
 
 @auth.route("/login", methods=["POST"])
 def login():
@@ -85,7 +86,7 @@ def login():
             "school_institution": user.get("school_institution"),
         }    )
 
-    return jsonify({"token": token ,"data": user }), 200
+    return jsonify({"token": token ,"user": user }), 200
 
 @auth.route("/verify-email", methods=["POST"])
 def verify_email():
@@ -107,7 +108,8 @@ def verify_email():
             "school_institution": user.get("school_institution"),
         }
     )
-    return jsonify({"msg": "Email verified successfully", "data": user,"token": token}), 200
+
+    return jsonify({"msg": "Email verified successfully","token":token,"user":user}), 200
 
 @auth.route("/forgot-password", methods=["POST"])
 def forgot_password():
