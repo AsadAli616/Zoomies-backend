@@ -14,7 +14,7 @@ class UserRegisterSchema(Schema):
             "invalid": "Password must be a string."
         }
     )
-    academic_level = fields.Str(
+    class_level = fields.Str(
         required=False,
         validate=validate.Length(min=2),
         allow_none=True,

@@ -7,7 +7,7 @@ class User:
         email,
         password,
         roles,
-        academic_level=None,
+        class_level=None,
         school_institution=None,
         is_active=True,
         verified_email=False,
@@ -24,7 +24,7 @@ class User:
         self.email = email
         self.password = password
         self.roles = roles
-        self.academic_level = academic_level
+        self.class_level = class_level
         self.school_institution = school_institution
         self.is_active = is_active
         self.verified_email = verified_email

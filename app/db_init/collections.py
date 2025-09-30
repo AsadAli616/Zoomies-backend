@@ -24,9 +24,9 @@ def create_collections():
                             "description": "Role must be one of: admin, teacher, student"
                         }
                     },
-                    "academic_level": {
-                        "bsonType": ["string", "null"],
-                        "description": "Academic level (optional, can be null)"
+                   "class_level": {
+                        "enum": ["O-level", "A-level", "SAT", "IB"],
+                        "description": "Class/Grade level for the quiz"
                     },
                     "school_institution": {
                         "bsonType": ["string", "null"],
@@ -80,3 +80,80 @@ def create_collections():
                 }
             }
         })
+    if "quizzes" not in db.list_collection_names():
+        db.create_collection("quizzes", validator={
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": [
+                    "teacher_id",
+                    "title",
+                    "created_at",
+                    "class_level",
+                    "start_time",
+                    "duration_minutes",
+                    "questions"
+                ],
+                "properties": {
+                    "teacher_id": {
+                        "bsonType": "objectId",
+                        "description": "Reference to TeachingSubject"
+                    },
+                    "title": {
+                        "bsonType": "string",
+                        "description": "Quiz title"
+                    },
+                    "description": {
+                        "bsonType": ["string", "null"],
+                        "description": "Optional quiz description"
+                    },
+                    "class_level": {
+                        "enum": ["O-level", "A-level", "SAT", "IB"],
+                        "description": "Class/Grade level for the quiz"
+                    },
+                    "start_time": {
+                        "bsonType": "date",
+                        "description": "When the quiz starts"
+                    },
+                    "duration_minutes": {
+                        "bsonType": "int",
+                        "minimum": 1,
+                        "description": "Quiz duration in minutes"
+                    },
+                    "questions": {
+                        "bsonType": "array",
+                        "minItems": 1,
+                        "items": {
+                            "bsonType": "object",
+                            "required": ["text", "options", "correct_answer"],
+                            "properties": {
+                                "text": {
+                                    "bsonType": "string",
+                                    "description": "Question text"
+                                },
+                                "options": {
+                                    "bsonType": "array",
+                                    "minItems": 2,
+                                    "items": {"bsonType": "string"},
+                                    "description": "Answer options (at least 2 required)"
+                                },
+                                "correct_answer": {
+                                    "bsonType": "string",
+                                    "description": "Correct answer (must be one of the options)"
+                                }
+                            }
+                        },
+                        "description": "Array of questions"
+                    },
+                    "created_at": {
+                        "bsonType": "date",
+                        "description": "Quiz creation timestamp"
+                    },
+                    "updated_at": {
+                        "bsonType": ["date", "null"],
+                        "description": "Last update timestamp"
+                    }
+                }
+            }
+        })
+
+

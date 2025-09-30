@@ -28,7 +28,7 @@ def register():
         email=data["email"],
         password=data["password"],
         roles=["student"],
-        academic_level=data.get("academic_level"),
+        class_level=data.get("class_level"),
         school_institution=data.get("school_institution"),
         is_active=data.get("is_active", True),
     )
@@ -51,7 +51,7 @@ def register_teacher():
         email=data["email"],
         password=data["password"],
         roles=["teacher"],
-        academic_level=data.get("academic_level"),
+        class_level=data.get("class_level"),
         school_institution=data.get("school_institution"),
         is_active=data.get("is_active", True),
         years_of_experience=data.get("years_of_experience"),
@@ -82,7 +82,7 @@ def login():
         identity=user["email"],
         additional_claims={
             "roles": user.get("roles", []),
-            "academic_level": user.get("academic_level"),
+            "class_level": user.get("class_level"),
             "school_institution": user.get("school_institution"),
         }    )
 
@@ -104,7 +104,7 @@ def verify_email():
         identity=user["email"],
         additional_claims={
             "roles": user.get("roles", []),
-            "academic_level": user.get("academic_level"),
+            "class_level": user.get("class_level"),
             "school_institution": user.get("school_institution"),
         }
     )
