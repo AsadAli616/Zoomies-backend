@@ -2,47 +2,55 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from .. import mongo
 
-
 class Quiz:
     def __init__(
         self,
         teacher_id,
         title,
         class_level,
-        start_time,
-        duration_minutes,
+        quiz_type,
         questions,
+        status,
         description=None,
+        start_time=None,
+        duration_minutes=None,
         created_at=None,
         updated_at=None
     ):
         self.teacher_id = ObjectId(teacher_id) if teacher_id else None
         self.title = title
+        self.status = status
         self.description = description
-        self.class_level = class_level  # Must be one of ["O-level", "A-level", "SAT", "IB"]
-        self.start_time = start_time  # Expecting a datetime object
-        self.duration_minutes = duration_minutes
-        self.questions = questions  # Array of {text, options[], correct_answer}
+        self.class_level = class_level  # ["O-level", "A-level", "SAT", "IB"]
+        self.quiz_type = quiz_type      # "anytime" | "scheduled"
+        self.start_time = start_time    # datetime (only if scheduled)
+        self.duration_minutes = duration_minutes  # int (only if scheduled)
+        self.questions = questions      # Array of {text, options[], correct_answer}
         self.created_at = created_at or datetime.now(timezone.utc)
         self.updated_at = updated_at or datetime.now(timezone.utc)
 
     def save(self):
         """
         Insert or update a quiz in MongoDB.
-        If title already exists for the same subject, update it.
+        If title already exists for the same teacher, update it.
         """
         data = self.__dict__.copy()
+
         result = mongo.db.quizzes.update_one(
             {"title": self.title, "teacher_id": self.teacher_id},
             {"$set": data},
             upsert=True
         )
+
         if result.upserted_id:
             data["_id"] = result.upserted_id
         else:
-            existing = mongo.db.quizzes.find_one({"title": self.title, "teacher_id": self.teacher_id})
+            existing = mongo.db.quizzes.find_one(
+                {"title": self.title, "teacher_id": self.teacher_id}
+            )
             if existing:
                 data["_id"] = existing["_id"]
+
         return data
 
     @staticmethod
@@ -57,9 +65,6 @@ class Quiz:
 
     @staticmethod
     def update_quiz(quiz_id, updates: dict):
-        """
-        Update a quiz document by ID.
-        """
         try:
             if not ObjectId.is_valid(quiz_id):
                 return None, "Invalid quiz ID"

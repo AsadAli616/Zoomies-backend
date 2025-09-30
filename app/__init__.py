@@ -34,14 +34,16 @@ def create_app():
     from .db_init.collections import create_collections
     create_collections()
         
-    # ✅ import blueprints from routes package
+   
     from app.routes.routes import main
     from  app.routes.auth_routes import auth
     from app.routes.user_routes import users
-
+    from app.routes.quize_routes import quiz_bp
+    
 
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(users, url_prefix="/users")
+    app.register_blueprint(quiz_bp,url_prefix="/users")
 
     return app

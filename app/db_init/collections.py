@@ -87,16 +87,15 @@ def create_collections():
                 "required": [
                     "teacher_id",
                     "title",
-                    "created_at",
                     "class_level",
-                    "start_time",
-                    "duration_minutes",
-                    "questions"
+                    "quiz_type",
+                    "questions",
+                    "created_at"
                 ],
                 "properties": {
                     "teacher_id": {
                         "bsonType": "objectId",
-                        "description": "Reference to TeachingSubject"
+                        "description": "Reference to User with role=teacher"
                     },
                     "title": {
                         "bsonType": "string",
@@ -110,14 +109,22 @@ def create_collections():
                         "enum": ["O-level", "A-level", "SAT", "IB"],
                         "description": "Class/Grade level for the quiz"
                     },
-                    "start_time": {
-                        "bsonType": "date",
-                        "description": "When the quiz starts"
+                    "quiz_type": {
+                        "enum": ["anytime", "scheduled"],
+                        "description": "Type of quiz: anytime (open) or scheduled"
                     },
+                    "start_time": {
+                        "bsonType": ["date", "null"],
+                        "description": "When the quiz starts (required if scheduled)"
+                    },
+                     "status": {
+                          "enum": ["easy", "medium", "hard"],
+                       "description": "Difficulty level of the quiz"
+                         },
                     "duration_minutes": {
-                        "bsonType": "int",
+                        "bsonType": ["int", "null"],
                         "minimum": 1,
-                        "description": "Quiz duration in minutes"
+                        "description": "Quiz duration in minutes (required if scheduled)"
                     },
                     "questions": {
                         "bsonType": "array",
@@ -155,5 +162,53 @@ def create_collections():
                 }
             }
         })
-
+    if "quiz_attempts" not in db.list_collection_names():
+     db.create_collection("quiz_attempts", validator={
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["quiz_id", "student_id", "answers", "submitted_at", "score"],
+            "properties": {
+                "quiz_id": {
+                    "bsonType": "objectId",
+                    "description": "Reference to quiz"
+                },
+                "student_id": {
+                    "bsonType": "objectId",
+                    "description": "Reference to student (User._id)"
+                },
+                "answers": {
+                    "bsonType": "array",
+                    "minItems": 1,
+                    "items": {
+                        "bsonType": "object",
+                        "required": ["question_text", "selected_option", "is_correct"],
+                        "properties": {
+                            "question_text": {
+                                "bsonType": "string",
+                                "description": "Question text"
+                            },
+                            "selected_option": {
+                                "bsonType": "string",
+                                "description": "Option chosen by student"
+                            },
+                            "is_correct": {
+                                "bsonType": "bool",
+                                "description": "Was the selected answer correct?"
+                            }
+                        }
+                    },
+                    "description": "Array of student answers"
+                },
+                "score": {
+                    "bsonType": "int",
+                    "minimum": 0,
+                    "description": "Number of correct answers"
+                },
+                "submitted_at": {
+                    "bsonType": "date",
+                    "description": "When the student submitted the quiz"
+                }
+            }
+        }
+    })
 

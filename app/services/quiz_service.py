@@ -5,25 +5,45 @@ import math
 
 
 class QuizService:
+    
     @staticmethod
     def create_quiz(data: dict):
         """
         Create a new quiz from request data.
         """
         try:
+            quiz_type = data.get("quiz_type")
+
+            # Validate conditional fields
+            if quiz_type == "scheduled":
+                if not data.get("start_time") or not data.get("duration_minutes"):
+                    return None, "Scheduled quizzes require start_time and duration_minutes"
+
+                # Ensure datetime parsing
+                if isinstance(data["start_time"], str):
+                    data["start_time"] = datetime.fromisoformat(data["start_time"].replace("Z", "+00:00"))
+
+                duration_minutes = int(data["duration_minutes"])
+            else:
+                data["start_time"] = None
+                duration_minutes = None
+
             quiz = Quiz(
                 teacher_id=data["teacher_id"],
                 title=data["title"],
+                status=data["status"],
                 class_level=data["class_level"],
-                start_time=data["start_time"],  # Expect datetime object
-                duration_minutes=int(data["duration_minutes"]),
+                quiz_type=quiz_type,
                 questions=data["questions"],
-                description=data.get("description")
+                description=data.get("description"),
+                start_time=data.get("start_time"),
+                duration_minutes=duration_minutes
             )
+
             return quiz.save(), None
         except Exception as e:
             return None, str(e)
-
+        
     @staticmethod
     def get_quiz_by_id(quiz_id: str):
         """
