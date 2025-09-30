@@ -44,6 +44,6 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(users, url_prefix="/users")
-    app.register_blueprint(quiz_bp,url_prefix="/users")
+    app.register_blueprint(quiz_bp,url_prefix="/quiz")
 
     return app

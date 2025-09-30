@@ -46,9 +46,27 @@ class QuizSchema(Schema):
         ),
         error_messages={"required": "Class level is required."}
     )
+    
+    status = fields.String(
+        required=True,
+        validate=validate.OneOf(
+            ["easy", "medium", "hard"],
+            error="status  must be one of: easy, medium, hard."
+        ),
+        error_messages={"required": "status  is required."}
+    )
+
+    quiz_type = fields.String(
+        required=True,
+        validate=validate.OneOf(
+            ["anytime", "scheduled"],
+            error="quiz type  must be one of: scheduled, anytime."
+        ),
+        error_messages={"required": "quiz type is required."}
+    )
 
     start_time = fields.DateTime(
-        required=True,
+        required=False,
         error_messages={"required": "Start time is required (ISO 8601 format)."}
     )
     duration_minutes = fields.Integer(

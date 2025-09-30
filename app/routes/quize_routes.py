@@ -26,7 +26,8 @@ def create_quiz():
     if error:
         return jsonify({"error": error}), 400
 
-    return quiz_schema.jsonify(quiz), 201
+    # ✅ Use dump + jsonify instead of schema.jsonify
+    return jsonify(quiz_schema.dump(quiz)), 201
 
 
 @quiz_bp.route("/quizzes/<quiz_id>", methods=["GET"])
@@ -53,23 +54,10 @@ def get_quizzes():
     """
     page = int(request.args.get("page", 1))
     limit = int(request.args.get("limit", 10))
-    class_level = request.args.get("class_level")
-    quiz_type = request.args.get("quiz_type")
 
-    filters = {}
-    if class_level:
-        filters["class_level"] = class_level
-    if quiz_type:
-        filters["quiz_type"] = quiz_type
-
-    quizzes, total, total_pages = QuizService.get_all_quizzes(
-        page=page, limit=limit, filters=filters
-    )
+    result = QuizService.get_all_quizzes(page=page, limit=limit)
 
     return jsonify({
-        "page": page,
-        "limit": limit,
-        "total": total,
-        "total_pages": total_pages,
-        "quizzes": quiz_list_schema.dump(quizzes)
+        **result,
+        "quizzes": quiz_list_schema.dump(result["quizzes"])
     }), 200

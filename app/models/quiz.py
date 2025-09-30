@@ -52,7 +52,32 @@ class Quiz:
                 data["_id"] = existing["_id"]
 
         return data
+    @staticmethod
+    def find_paginated(skip=0, limit=10, query=None, projection=None):
+        """
+        Fetch quizzes with pagination and return total count.
+        :param skip: Number of docs to skip
+        :param limit: Max docs to return
+        :param query: Optional filter dict
+        :param projection: Fields to include/exclude
+        :return: dict with quizzes list and total count
+        """
+        if query is None:
+            query = {}
 
+        total = mongo.db.quizzes.count_documents(query)
+
+        cursor = (
+            mongo.db.quizzes
+            .find(query, projection)
+            .skip(skip)
+            .limit(limit)
+        )
+
+        return {
+            "items": list(cursor),
+            "total": total
+        }
     @staticmethod
     def find_by_id(quiz_id):
         if not ObjectId.is_valid(quiz_id):

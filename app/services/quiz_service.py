@@ -63,18 +63,36 @@ class QuizService:
         Fetch all quizzes with pagination.
         """
         skip = (page - 1) * limit
-        cursor = Quiz.collection().find().skip(skip).limit(limit)
 
-        quizzes = list(cursor)
-        total = Quiz.collection().count_documents({})
+        projection = {
+            "title": 1,
+            "_id": 1,
+            "questions": 1,
+            "quiz_type": 1,
+            "start_time": 1,
+            "status": 1,
+            "class_level": 1,
+            "teacher_id": 1
+        }
+
+        quizzes = Quiz.find_paginated(skip, limit, {}, projection)
+
+        total = quizzes.get("total", 0)
         total_pages = math.ceil(total / limit) if limit > 0 else 1
 
         # Convert ObjectId to string for JSON
-        for q in quizzes:
+        for q in quizzes["items"]:
             q["_id"] = str(q["_id"])
-            q["subject_id"] = str(q["subject_id"])
+            if "teacher_id" in q:
+                q["teacher_id"] = str(q["teacher_id"])
 
-        return quizzes, total, total_pages
+        return {
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "total_pages": total_pages,
+            "quizzes": quizzes["items"]
+        }
 
     @staticmethod
     def update_quiz(quiz_id: str, updates: dict):
