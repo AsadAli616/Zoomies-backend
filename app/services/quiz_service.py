@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from bson import ObjectId
 from ..models.quiz import Quiz
+import math
 
 
 class QuizService:
@@ -37,15 +38,23 @@ class QuizService:
         return quiz, None
 
     @staticmethod
-    def get_all_quizzes():
+    def get_all_quizzes(page=1, limit=10):
         """
-        Fetch all quizzes.
+        Fetch all quizzes with pagination.
         """
-        quizzes = Quiz.find_all()
+        skip = (page - 1) * limit
+        cursor = Quiz.collection().find().skip(skip).limit(limit)
+
+        quizzes = list(cursor)
+        total = Quiz.collection().count_documents({})
+        total_pages = math.ceil(total / limit) if limit > 0 else 1
+
+        # Convert ObjectId to string for JSON
         for q in quizzes:
             q["_id"] = str(q["_id"])
-            q["teacher_id"] = str(q["teacher_id"])
-        return quizzes
+            q["subject_id"] = str(q["subject_id"])
+
+        return quizzes, total, total_pages
 
     @staticmethod
     def update_quiz(quiz_id: str, updates: dict):
