@@ -37,6 +37,7 @@ class QuizService:
                 questions=data["questions"],
                 description=data.get("description"),
                 start_time=data.get("start_time"),
+                Subject=data["Subject"],
                 duration_minutes=duration_minutes
             )
 

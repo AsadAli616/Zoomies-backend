@@ -11,6 +11,7 @@ class Quiz:
         quiz_type,
         questions,
         status,
+        Subject,
         description=None,
         start_time=None,
         duration_minutes=None,
@@ -23,7 +24,8 @@ class Quiz:
         self.description = description
         self.class_level = class_level  # ["O-level", "A-level", "SAT", "IB"]
         self.quiz_type = quiz_type      # "anytime" | "scheduled"
-        self.start_time = start_time    # datetime (only if scheduled)
+        self.start_time = start_time 
+        self.Subject  = Subject   # datetime (only if scheduled)
         self.duration_minutes = duration_minutes  # int (only if scheduled)
         self.questions = questions      # Array of {text, options[], correct_answer}
         self.created_at = created_at or datetime.now(timezone.utc)
@@ -53,23 +55,31 @@ class Quiz:
 
         return data
     @staticmethod
-    def find_paginated(skip=0, limit=10, query=None, projection=None):
+    def find_paginated(skip=0, limit=10, query=None, projection=None, base_filter=None):
         """
         Fetch quizzes with pagination and return total count.
         :param skip: Number of docs to skip
         :param limit: Max docs to return
         :param query: Optional filter dict
         :param projection: Fields to include/exclude
+        :param base_filter: Default WHERE clause (applied in all cases)
         :return: dict with quizzes list and total count
         """
+        # base filter always applies
+        if base_filter is None:
+            base_filter = {}
+
+        # merge base filter + user filter
         if query is None:
             query = {}
 
-        total = mongo.db.quizzes.count_documents(query)
+        final_query = {**base_filter, **query}
+
+        total = mongo.db.quizzes.count_documents(final_query)
 
         cursor = (
             mongo.db.quizzes
-            .find(query, projection)
+            .find(final_query, projection)
             .skip(skip)
             .limit(limit)
         )
@@ -78,6 +88,7 @@ class Quiz:
             "items": list(cursor),
             "total": total
         }
+    
     @staticmethod
     def find_by_id(quiz_id):
         if not ObjectId.is_valid(quiz_id):

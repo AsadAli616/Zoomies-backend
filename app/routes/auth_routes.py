@@ -79,12 +79,14 @@ def login():
 
     # Create token with extra claims (roles, academic info)
     token = create_access_token(
-        identity=user["email"],
-        additional_claims={
-            "roles": user.get("roles", []),
-            "class_level": user.get("class_level"),
-            "school_institution": user.get("school_institution"),
-        }    )
+    identity=user["email"],
+    additional_claims={
+        "roles": user.get("roles", []),
+        "class_level": user.get("class_level"),
+        "school_institution": user.get("school_institution"),
+    },
+    expires_delta=False  
+    )   
 
     return jsonify({"token": token ,"user": user }), 200
 

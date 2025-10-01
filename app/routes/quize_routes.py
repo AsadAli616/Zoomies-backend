@@ -26,7 +26,7 @@ def create_quiz():
     if error:
         return jsonify({"error": error}), 400
 
-    # ✅ Use dump + jsonify instead of schema.jsonify
+
     return jsonify(quiz_schema.dump(quiz)), 201
 
 

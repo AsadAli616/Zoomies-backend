@@ -55,6 +55,16 @@ class QuizSchema(Schema):
         ),
         error_messages={"required": "status  is required."}
     )
+    Subject = fields.String(
+            required=True,
+            validate=validate.OneOf(
+                ["Mathematics", "Biology", "Chemistry", "Physics", "English"],
+                error="status  must be one of: easy, medium, hard."
+            ),
+            error_messages={"required": "Subject  is required."}
+        )
+
+
 
     quiz_type = fields.String(
         required=True,

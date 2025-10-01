@@ -108,6 +108,10 @@ def create_collections():
                     "class_level": {
                         "enum": ["O-level", "A-level", "SAT", "IB"],
                         "description": "Class/Grade level for the quiz"
+                    },   
+                  "Subject": {
+                        "enum": ["Mathematics", "Biology", "Chemistry", "Physics", "English"],
+                        "description": "Subject area of the quiz"
                     },
                     "quiz_type": {
                         "enum": ["anytime", "scheduled"],
